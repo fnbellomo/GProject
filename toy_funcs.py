@@ -19,4 +19,3 @@ def print_func(bodies_list,first):
 	if first == True: plt.legend()
 	plt.ion()
 	plt.draw()
-#	plt.show()
