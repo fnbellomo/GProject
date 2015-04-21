@@ -1,5 +1,7 @@
 #!/usr/bin/env python3 
 from __future__ import print_function
+from toy_funcs import *
+#import pylab as plt
 
 import matplotlib
 #To make interactive plots, I need use TK
@@ -56,43 +58,45 @@ class NotEnoughFundsException(Exception):
 class Body(object):
     """This class represents a Body"""
     def __init__(self, obj_id, obj_mass, obj_position, obj_velocity):
-	self.obj_id      	= obj_id
-	self.obj_mass    	= obj_mass
-	self.obj_position	= obj_position
-	self.obj_velocity	= obj_velocity
-
-    def step(self, step_func, step_size, all_bodies, dict_bodies):
-        """take a step"""
-        self.obj_position,self.obj_velocity = step_func(step_size,self.obj_id,all_bodies,dict_bodies)
+        """The components of the body are"""
+	self.obj_id      	= obj_id	# id		, can be any format
+	self.obj_mass    	= obj_mass	# mass		, float format
+	self.obj_position	= obj_position	# position	, list=[float,float] format
+	self.obj_velocity	= obj_velocity	# velocities	, list=[float,float] format
+    def step(self, step_func, step_size, bodies_list, dict_bodies):
+        """Take a step for the position and velocity of the body"""
+        self.obj_position,self.obj_velocity = step_func(step_size,self.obj_id,bodies_list,dict_bodies)
 	print(self.obj_id,self.obj_position,self.obj_velocity)
+
 class Gravitation(object):
     """
     This class is the main Gravitaion wrapper
     """
     def __init__(self):
+        """ Compose a list with all bodies """
 #        self.bodies	= []
-        self.bodies	= [Body(1,1,[0,0],[2,3])]
+        self.bodies	= [Body(1,1,[0,0],[2,-3])]
         self.lookup	= dict([[body.obj_id,body] for body in self.bodies])
 	self.step_size	= 0.1
     def add_body(self, obj_id, obj_mass, obj_position, obj_velocity):
+        """ Add a body to the list with all bodies """
 	new_Body	= Body(obj_id, obj_mass, obj_position, obj_velocity)
 	self.bodies.append( new_Body )
 	self.lookup[obj_id] = new_Body
 
     def take_steps(self, number_of_steps, step_func):
-        """Withdraw (amount) from (account_number)"""
+        """ Takes steps for all bodies """
 	for i in range(number_of_steps):
 		for body in self.bodies:
 			body.step(step_func, self.step_size, self.bodies, self.lookup)
+		self.print_status()
+    def print_status(self):
+        """ Print the position for all bodies """
+	print_func(self.bodies)
 #        try:
 #                acc.withdraw(amount)
 #        except NotEnoughFundsException:
 #                print("Dear client, you should check your balance before performing this operation")
-def step_func(step_size,obj_id,all_bodies,dict_bodies):
-	body	= dict_bodies[obj_id]
-	for i in range(2):
-		body.obj_position[i] += step_size*body.obj_velocity[i]
-	return body.obj_position, body.obj_velocity
 
 menu_text1 = """
     1 - Add body
