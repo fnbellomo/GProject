@@ -18,32 +18,48 @@ class make_plot():
     Class to make the plots in run time
     """
 
-    def __init__(self, body_numbers):
-        self.body_numbers = body_numbers
+    def __init__(self, grav):
+        self.grav = grav
+        self.number_body = len(self.grav.bodies)
+        self.bodies_range = range(self.number_body)
+        
         #Turn interactive mode on.
         plt.ion()
         #Creo que no es necesario el show
         plt.show()
-
+        
         #Setup the plot
         self.fig, self.axes = plt.subplots(figsize=(12,3))
-
         #Set x, y label and title
         self.axes.set_xlabel(r'$x$')
         self.axes.set_ylabel(r'$y$')
-        self.axes.set_title('Solution of %s body problems' %(self.body_numbers))
-
+        self.axes.set_title('Solution of %s body problems' %(self.number_body))
+        
         #To make that the same body have the same color
-        body_range = range(self.body_numbers)
-        curves = [np.random.random(20) for i in body_range]
+        curves = [np.random.random(20) for i in self.bodies_range]
         jet = cm = plt.get_cmap('jet') 
-        cNorm  = colors.Normalize(vmin=0, vmax=body_range[-1])
+        cNorm  = colors.Normalize(vmin=0, vmax=self.bodies_range[-1])
         self.scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
-
-    #Update the plots
-    def update(self, x, y):
-        #x and y are position vectors for all bodys
-        for i in range(self.body_numbers):
+        
+        #Plot the initial positons and the radios of eacho body in function of this mass
+        mass = [grav.bodies[i].obj_mass for i in range(len(grav.bodies))]
+        mass_max = max(mass)
+        for i in self.bodies_range:
+            x = self.grav.bodies[i].obj_position[0]
+            y = self.grav.bodies[i].obj_position[1]
+            circle_radio = mass[i]/mass_max
             colorVal = self.scalarMap.to_rgba(i)
-            self.axes.plot(x[i], y[i], 'o', color=colorVal)
+            #self.axes.plot(x, y, '^', color=colorVal)
+            self.axes.add_patch(plt.Circle((x,y), radius=circle_radio, color=colorVal))
+        self.axes.axis('equal')
+        self.axes.margins(0)
+        plt.draw()
+    
+    def update(self):
+        #x and y are position vectors for all bodys
+        for i in self.bodies_range:
+            x = self.grav.bodies[i].obj_position[0]
+            y = self.grav.bodies[i].obj_position[1]
+            colorVal = self.scalarMap.to_rgba(i)
+            self.axes.plot(x, y, 'o', color=colorVal)
         plt.draw()
