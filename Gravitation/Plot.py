@@ -1,11 +1,11 @@
 #!/usr/bin/env python3 
 from __future__ import print_function
-
+import numpy as np
 import matplotlib
 #To make interactive plots, I need use TK
 matplotlib.use('TkAgg')
 #Matplotlib configuration parameters:
-matplotlib.rcParams.update({'font.size': 18, 'text.usetex': True})
+#matplotlib.rcParams.update({'font.size': 18, 'text.usetex': True})
 
 import matplotlib.pyplot as plt
 
@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
 
-class make_plot():
+class make_plot(object):
     """
     Class to make the plots in run time
     """

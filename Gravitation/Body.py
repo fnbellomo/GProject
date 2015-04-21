@@ -7,7 +7,7 @@ class Body(object):
     def __init__(self, obj_id, obj_mass, obj_position, obj_velocity):
         """The components of the body are"""
 	self.obj_id      	= obj_id	# id		, can be any format
-	self.obj_mass    	= obj_mass	# mass		, float format
+	self.obj_mass    	= float(obj_mass)	# mass		, float format
 	self.obj_position	= obj_position	# position	, list=[float,float] format
 	self.obj_velocity	= obj_velocity	# velocities	, list=[float,float] format
     def step(self, step_func, step_size, bodies_list, dict_bodies):

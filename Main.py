@@ -1,9 +1,10 @@
 #!/usr/bin/env python3 
 from __future__ import print_function
-import sys
-import os
-sys.path.append(os.path.abspath('Gravitation/'))
-from Gravitation import *
+#import sys
+#import os
+#sys.path.append(os.path.abspath('Gravitation/'))
+#from Gravitation import *
+from Gravitation.Gravitation import *
 
 menu_text1 = """
     1 - Add body
@@ -13,6 +14,8 @@ menu_text1 = """
 def main():
 	grav	= Gravitation()
 	grav.import_bodies('test_bodies.dat')
+	plot = make_plot(grav)
+	
 
 	while True:
 	        print(menu_text1)
@@ -27,8 +30,8 @@ def main():
 			grav.add_body(obj_id, obj_mass, obj_position, obj_velocity)
 	        elif selected_option == 2:
 			number_of_steps	= (input('number_of_steps:	'))
-			grav.print_status(True)
-			grav.take_steps(number_of_steps, step_func)
+#			grav.print_status(True)
+			grav.take_steps(number_of_steps, step_func,plot)
 	        elif selected_option == 0:
 			exit(0)
 if __name__ == '__main__':
