@@ -22,7 +22,6 @@ def main():
 			obj_position	= (input('obj_position	(list=[float,float] format):\n'))
 			obj_velocity	= (input('obj_velocity	(list=[float,float] format):\n'))
 			grav.add_body(obj_id, obj_mass, obj_position, obj_velocity)
-			
 	        elif selected_option == 2:
 			number_of_steps	= (input('number_of_steps:	'))
 			grav.print_status(True)
