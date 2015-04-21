@@ -1,5 +1,8 @@
 #!/usr/bin/env python3 
 from __future__ import print_function
+import sys
+import os
+sys.path.append(os.path.abspath('Gravitation/'))
 from Gravitation import *
 
 menu_text1 = """
