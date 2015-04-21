@@ -1,6 +1,42 @@
 #!/usr/bin/env python3 
 from __future__ import print_function
 
+import matplotlib
+# Make interactive plots
+matplotlib.use('TkAgg')
+# Update the matplotlib configuration parameters:
+matplotlib.rcParams.update({'font.size': 18, 'text.usetex': True})
+
+import matplotlib.pyplot as plt
+
+
+class make_plot():
+    """
+    Class to make the plots in run time
+    """
+
+    def __init__(self, body_numbers):
+        self.body_numbers = body_numbers
+        #Turn interactive mode on.
+        plt.ion()
+        #Creo que no es necesario el show
+        plt.show()
+
+        #Setup the plot
+        self.fig, self.axes = plt.subplots(figsize=(12,3))
+
+        #Set x, y label and title
+        self.axes.set_xlabel(r'$x$')
+        self.axes.set_ylabel(r'$y$')
+        self.axes.set_title('title')
+
+    def update(self, x, y):
+        #Update the plots
+        #x and y are position vectors for all bodys
+        self.axes.plot(x, y, 'o-')
+        plt.draw()
+
+
 class NotEnoughFundsException(Exception):
     def __init__(self, message):
         self.value = message  
