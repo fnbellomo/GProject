@@ -1,6 +1,8 @@
 #!/usr/bin/env python3 
 from __future__ import print_function
-from toy_funcs import *
+#from toy_funcs import *
+import numpy as np
+
 
 class Body(object):
     """This class represents a Body"""

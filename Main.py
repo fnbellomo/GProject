@@ -31,7 +31,7 @@ def main():
 	        elif selected_option == 2:
 			number_of_steps	= (input('number_of_steps:	'))
 #			grav.print_status(True)
-			grav.take_steps(number_of_steps, step_func,plot)
+			grav.take_steps(number_of_steps,plot)
 	        elif selected_option == 0:
 			exit(0)
 if __name__ == '__main__':

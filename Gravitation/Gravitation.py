@@ -2,7 +2,8 @@
 from __future__ import print_function
 from Body import Body
 from Plot import make_plot
-from toy_funcs import *
+#from toy_funcs import *
+import numpy as np
 
 def float_list(LIST): return [float(l) for l in LIST]
 
@@ -35,12 +36,13 @@ class Gravitation(object):
 			self.add_body(aux[0],aux[1],float_list(aux[2:4]),float_list(aux[4:6]))
 #			self.add_body(obj_id, obj_mass, obj_position, obj_velocity)
 
-    def take_steps(self, number_of_steps, step_func,plot):
+    def take_steps(self, number_of_steps,plot):
         """ Takes steps for all bodies """
 	for i in range(number_of_steps):
 		print('\nstep =',i)
-		for body in self.bodies:
-			body.step(step_func, self.step_size, self.bodies, self.lookup)
+		self.moveRK4(self.step_size)
+#		for body in self.bodies:
+#			body.step(step_func, self.step_size, self.bodies, self.lookup)
 		self.print_status(plot)
     def print_status(self,plot):
         """ Print the position for all bodies """
