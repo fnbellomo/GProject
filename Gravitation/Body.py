@@ -14,3 +14,24 @@ class Body(object):
         """Take a step for the position and velocity of the body"""
         self.obj_position,self.obj_velocity = step_func(step_size,self.obj_id,bodies_list,dict_bodies)
 	print(self.obj_id,self.obj_position,self.obj_velocity)
+	
+    def gfactor(self, other_body):
+	    """This function computes the g_ij factor between this object and other_object"""
+	    #
+	    # g_ij = G * m_j * / d**3
+	    #
+	    
+	    # Gravity constant
+	    G = 6.67384E-11
+	    
+	    if self.obj_id != other_body.obj_id:
+	    
+	        # Distance beetween objects
+	        dx = self.obj_position[0] - other_body.obj_position[0]
+	        dy = self.obj_position[1] - other_body.obj_position[1]
+	        dist = np.sqrt(dx*dx + dy*dy)
+	        
+	        return G*other_body.obj_mass/(dist*dist*dist)
+	        
+	    else:
+	        return 0
