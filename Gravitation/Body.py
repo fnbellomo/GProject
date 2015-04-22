@@ -24,15 +24,16 @@ class Body(object):
 	    #
 	    
 	    # Gravity constant
-	    G = 6.67384E-11
-	    
+#	    G = 6.67384E-11  
+	    G = 0.0374038
+
 	    if self.obj_id != other_body.obj_id:
 	    
 	        # Distance beetween objects
 	        dx = self.obj_position[0] - other_body.obj_position[0]
 	        dy = self.obj_position[1] - other_body.obj_position[1]
 	        dist = np.sqrt(dx*dx + dy*dy)
-	        
+	       
 	        return G*other_body.obj_mass/(dist*dist*dist)
 	        
 	    else:
