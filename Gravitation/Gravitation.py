@@ -68,33 +68,15 @@ class Gravitation(object):
         self.step_size = float(timeStep)
         self.do_plot = do_plot
 
-
-    def take_steps_np(self, number_of_steps):
+    def take_steps(self, number_of_steps,plot,plot_every_n):
         """ Takes steps for all bodies """
         for i in range(number_of_steps):
+            print('\nstep =',i)
             self.move()
+            if self.do_plot == True and i%plot_every_n==0 : self.print_status(plot,i)
             self.nStep+=1
        
         print("\nRun for ", len(self.bodies)," bodies during ", number_of_steps ," time steps\n")
-	
-
-
-
-    def take_steps(self, number_of_steps,plot,plot_every_n):
-        """ Takes steps for all bodies """
-        # out=open('out.dat','w')
-        for i in range(number_of_steps):
-            print('\nstep =',i)
-            # print('\nstep =',i,file=out)
-            self.move()
-            if self.do_plot == True and i%plot_every_n==0 : self.print_status(plot,i)
-            # for bi in range(len(self.bodies)):
-            # for bj in range(bi+1,len(self.bodies)):
-            # Bi=self.bodies[bi]
-            # Bj=self.bodies[bj]
-            # print('dist(',Bi.obj_id,',',Bj.obj_id,')=\t',Bi.gfactor(Bj),sep='')
-            # print('dist(',Bi.obj_id,',',Bj.obj_id,')=\t',Bi.gfactor(Bj),sep='',file=out)
-            # out.close()
 
 
     def print_status(self,plot,step_num):
@@ -173,7 +155,7 @@ class Gravitation(object):
 
 
     def update(self):
-        """update position and velocity"""
+        """update position, velocity and the path"""
         
         nBodies = len(self.bodies)
         
@@ -182,3 +164,5 @@ class Gravitation(object):
             self.bodies[i].obj_position[1] = self.alpha_new[i+nBodies] 
             self.bodies[i].obj_velocity[0] = self.alpha_new[i+2*nBodies] 
             self.bodies[i].obj_velocity[1] = self.alpha_new[i+3*nBodies]
+            self.bodies[i].obj_path[0] 	   .append(self.bodies[i].obj_position[0])
+            self.bodies[i].obj_path[1] 	   .append(self.bodies[i].obj_position[1])

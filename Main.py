@@ -56,7 +56,7 @@ def main():
             grav = Gravitation()
 	    grav.import_bodies(args.filename)
 	    grav.setUpInt(args.method, args.tstep, args.do_plot)
-	    grav.take_steps_np(int(args.nsteps))
+	    grav.take_steps(int(args.nsteps))
 	        
 if __name__ == '__main__':
     main()
