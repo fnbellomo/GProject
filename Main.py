@@ -7,6 +7,9 @@ from __future__ import print_function
 from Gravitation.Gravitation import *
 import argparse
 
+# Profiling options
+import cProfile, pstats, StringIO
+
 menu_text1 = """
     1 - Add body
     2 - Take step
@@ -53,10 +56,19 @@ def main():
 			exit(0)
 
         else:
+            # Enable profiling with cProfile
+            pr = cProfile.Profile()
+            pr.enable()
+            #
             grav = Gravitation()
 	    grav.import_bodies(args.filename)
 	    grav.setUpInt(args.method, args.tstep, args.do_plot)
 	    grav.take_steps_np(int(args.nsteps))
+            #
+            pr.disable()
+            pr.print_stats()
+#            fileName = "Profiling/N_" + `len(grav.bodies)` + "_TS_" + args.nsteps + ".dat"
+#            pr.dump_stats(fileName)
 	        
 if __name__ == '__main__':
     main()
