@@ -29,8 +29,8 @@ class Gravitation(object):
         self.convert_m	= scale_mass	/ best_mass	
         self.convert_r	= scale_distance/ best_distance
         self.convert_t	= scale_time	/ best_time	
-        self.convert_v	= self.convert_r/ self.convert_t	
-
+        self.convert_v	= self.convert_r/ self.convert_t
+        self.nStep      = 0
 
     def add_body(self, obj_id, obj_mass, obj_position, obj_velocity):
         """ Add a body to the list with all bodies """
@@ -69,13 +69,24 @@ class Gravitation(object):
         self.do_plot = do_plot
 
 
-    def take_steps(self, number_of_steps,plot,):
+    def take_steps(self, number_of_steps,plot):
         """ Takes steps for all bodies """
         for i in range(number_of_steps):
             print('\nstep =',i)
             self.move()
 	    if self.do_plot == True : self.print_status(plot)
+            self.nStep+=1
 
+        print("\nRun for ", len(self.bodies)," bodies during ", number_of_steps ," time steps\n")
+
+
+    def take_steps_np(self, number_of_steps):
+        """ Takes steps for all bodies """
+        for i in range(number_of_steps):
+            self.move()
+            self.nStep+=1
+       
+        print("\nRun for ", len(self.bodies)," bodies during ", number_of_steps ," time steps\n")
 
 
     def print_status(self,plot):

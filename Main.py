@@ -18,16 +18,19 @@ parser.add_argument('--method', dest='method',default="runge-kutta4",help='integ
 parser.add_argument('--tstep', dest='tstep',default=1, help='time step')
 parser.add_argument('--file', dest='filename',default="bodies.dat", help='body parameters filename')
 parser.add_argument('--plot', dest='do_plot',action='store_true',default=False, help='plot the results in real time')
+parser.add_argument('--profile', dest='profile',action='store_true',default=False, help='runs without interaction mode - only for profiling')
+parser.add_argument('--nsteps', dest='nsteps',default=0, help='total number of time steps')
 args = parser.parse_args()
 
 
 def main():
-	grav	= Gravitation()
-	grav.import_bodies(args.filename)
-	grav.setUpInt(args.method, args.tstep, args.do_plot)
-	plot = make_plot(grav)
+        if args.profile == False:
+    	    grav	= Gravitation()
+	    grav.import_bodies(args.filename)
+	    grav.setUpInt(args.method, args.tstep, args.do_plot)
+	    plot = make_plot(grav)
 
-	while True:
+	    while True:
 	        print(menu_text1)
 	        selected_option = int(input("Option: "))
 	        print()
@@ -41,8 +44,15 @@ def main():
 	        elif selected_option == 2:
 			number_of_steps	= (input('number_of_steps:	'))
 #			grav.print_status(True)
-			grav.take_steps(number_of_steps,plot,True)
+			grav.take_steps(number_of_steps,plot)
 	        elif selected_option == 0:
 			exit(0)
+
+        else:
+            grav = Gravitation()
+	    grav.import_bodies(args.filename)
+	    grav.setUpInt(args.method, args.tstep, args.do_plot)
+	    grav.take_steps_np(int(args.nsteps))
+	        
 if __name__ == '__main__':
     main()
