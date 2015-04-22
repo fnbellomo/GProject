@@ -29,10 +29,11 @@ class make_plot(object):
         plt.show()
         
         #Setup the plot
-        self.fig, self.axes = plt.subplots(figsize=(12,3))
+        self.fig, self.axes = plt.subplots(figsize=(12,12))
         #Set x, y label and title
-        self.axes.set_xlabel(r'$x$')
-        self.axes.set_ylabel(r'$y$')
+	label=r'A.U.($6\times10^{24}$m)'
+        self.axes.set_xlabel(label)
+        self.axes.set_ylabel(label)
         self.axes.set_title('Solution of %s body problems' %(self.number_body))
         
         #To make that the same body have the same color
@@ -45,21 +46,26 @@ class make_plot(object):
         mass = [grav.bodies[i].obj_mass for i in range(len(grav.bodies))]
         mass_max = max(mass)
         for i in self.bodies_range:
+	    name = self.grav.bodies[i].obj_id
             x = self.grav.bodies[i].obj_position[0]
             y = self.grav.bodies[i].obj_position[1]
             circle_radio = mass[i]/mass_max
             colorVal = self.scalarMap.to_rgba(i)
             #self.axes.plot(x, y, '^', color=colorVal)
-            self.axes.add_patch(plt.Circle((x,y), radius=circle_radio, color=colorVal))
+            self.axes.add_patch(plt.Circle((x,y), radius=circle_radio, color=colorVal,label=name))
         self.axes.axis('equal')
         self.axes.margins(0)
+	plt.legend()
         plt.draw()
     
-    def update(self):
+    def update(self,step_num):
         #x and y are position vectors for all bodys
         for i in self.bodies_range:
             x = self.grav.bodies[i].obj_position[0]
             y = self.grav.bodies[i].obj_position[1]
             colorVal = self.scalarMap.to_rgba(i)
             self.axes.plot(x, y, 'o', color=colorVal)
+	time = step_num*self.grav.step_size
+	txt = plt.text(.5,.975,'time='+str(time)+'years',horizontalalignment='center',verticalalignment='center',transform = self.axes.transAxes,bbox=dict(facecolor='1'))
         plt.draw()
+	txt.remove()
