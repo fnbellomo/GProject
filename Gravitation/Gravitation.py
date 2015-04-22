@@ -68,12 +68,13 @@ class Gravitation(object):
         self.step_size = float(timeStep)
 
 
-    def take_steps(self, number_of_steps,plot):
+    def take_steps(self, number_of_steps,plot,do_plot=False):
         """ Takes steps for all bodies """
+	if do_plot==True : action = self.print_status(plot)
         for i in range(number_of_steps):
             print('\nstep =',i)
             self.move()
-            self.print_status(plot)
+	    if do_plot == True : self.print_status(plot)
 
 
 
