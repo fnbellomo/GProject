@@ -5,17 +5,26 @@ from __future__ import print_function
 #sys.path.append(os.path.abspath('Gravitation/'))
 #from Gravitation import *
 from Gravitation.Gravitation import *
+import argparse
 
 menu_text1 = """
     1 - Add body
     2 - Take step
     0 - Exit
 """
+# Creation of argument parser
+parser = argparse.ArgumentParser(description='n-body gravitation')
+parser.add_argument('--method', dest='method',default="runge-kutta4",help='integration method. runge-kutta4 or euler')
+parser.add_argument('--tstep', dest='tstep',default=1, help='time step')
+parser.add_argument('--file', dest='filename',default="bodies.dat", help='body parameters filename')
+args = parser.parse_args()
+
+
 def main():
 	grav	= Gravitation()
-	grav.import_bodies('test_bodies.dat')
+	grav.import_bodies(args.filename)
+	grav.setUpInt(args.method, args.tstep)
 	plot = make_plot(grav)
-	
 
 	while True:
 	        print(menu_text1)

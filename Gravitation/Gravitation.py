@@ -19,7 +19,7 @@ class Gravitation(object):
     """
     This class is the main Gravitaion wrapper
     """
-    def __init__(self,scale_mass=best_mass,scale_distance=best_distance,scale_time=best_time,stepSize=1):
+    def __init__(self,scale_mass=best_mass,scale_distance=best_distance,scale_time=best_time):
         """ Compose a list and a dict with all bodies 
 		.bodies  corresponds to a list with the bodies, i. e. [Body1,Body2,...]		=> GRAV.bodies[1]   = Body1 
 		.lookup  corresponds to a dict with the bodies, i. e. dict([id1,Body1],...)	=> GRAV.lookup[id1] = Body1
@@ -30,8 +30,6 @@ class Gravitation(object):
         self.convert_r	= scale_distance/ best_distance
         self.convert_t	= scale_time	/ best_time	
         self.convert_v	= self.convert_r/ self.convert_t	
-        self.step_size	= stepSize
-#        self.M = np.zeros(1)
 
 
     def add_body(self, obj_id, obj_mass, obj_position, obj_velocity):
@@ -64,13 +62,17 @@ class Gravitation(object):
         self.alpha     = np.zeros(4*nBodies)
         self.alpha_new = np.zeros(4*nBodies)
         
+        
+    def setUpInt(self,method,timeStep):
+        self.method = method
+        self.step_size = float(timeStep)
 
 
     def take_steps(self, number_of_steps,plot):
         """ Takes steps for all bodies """
         for i in range(number_of_steps):
             print('\nstep =',i)
-            self.moveRK4()
+            self.move()
             self.print_status(plot)
 
 
@@ -81,7 +83,7 @@ class Gravitation(object):
 	
 
 
-    def moveRK4(self):
+    def move(self):
         """Integrate the movement of all the bodies listed in bodies[]"""
 
         #
@@ -121,22 +123,25 @@ class Gravitation(object):
            self.alpha[i+nBodies]   = self.bodies[i].obj_position[1]    # Y coordinate
            self.alpha[i+2*nBodies] = self.bodies[i].obj_velocity[0]    # Vx
            self.alpha[i+3*nBodies] = self.bodies[i].obj_velocity[1]    # Vy
-         
-        # Vector definition for RK calculation
-        K1 = deltaT * np.dot(self.M, self.alpha)
-        K2 = deltaT * np.dot(self.M, np.add(self.alpha,0.5*K1))
-        K3 = deltaT * np.dot(self.M, np.add(self.alpha,0.5*K2))
-        K4 = deltaT * np.dot(self.M, np.add(self.alpha,K3))
-         
-        # Advance one timestep
-        self.alpha_new = np.add(self.alpha,(1./6.)*K1)
-        self.alpha_new = np.add(self.alpha_new,(1./3.)*K2)
-        self.alpha_new = np.add(self.alpha_new,(1./3.)*K3)
-        self.alpha_new = np.add(self.alpha_new,(1./6.)*K4)
-
-#        # Euler explicito
-#        K1 = deltaT * np.dot(M, alpha)
-#        alpha_new = np.add(alpha,K1)
+        
+        
+        if self.method == "runge-kutta4":
+            # Vector definition for RK calculation
+            K1 = deltaT * np.dot(self.M, self.alpha)
+            K2 = deltaT * np.dot(self.M, np.add(self.alpha,0.5*K1))
+            K3 = deltaT * np.dot(self.M, np.add(self.alpha,0.5*K2))
+            K4 = deltaT * np.dot(self.M, np.add(self.alpha,K3))
+             
+            # Advance one timestep
+            self.alpha_new = np.add(self.alpha,(1./6.)*K1)
+            self.alpha_new = np.add(self.alpha_new,(1./3.)*K2)
+            self.alpha_new = np.add(self.alpha_new,(1./3.)*K3)
+            self.alpha_new = np.add(self.alpha_new,(1./6.)*K4)
+        
+        elif self.method == "euler":
+            # Euler explicito
+            K1 = deltaT * np.dot(M, alpha)
+            alpha_new = np.add(alpha,K1)
 
         # Update bodies positions and velocities
         self.update()
@@ -155,4 +160,4 @@ class Gravitation(object):
             self.bodies[i].obj_position[0] = self.alpha_new[i]
             self.bodies[i].obj_position[1] = self.alpha_new[i+nBodies] 
             self.bodies[i].obj_velocity[0] = self.alpha_new[i+2*nBodies] 
-            self.bodies[i].obj_velocity[1] = self.alpha_new[i+3*nBodies]	
+            self.bodies[i].obj_velocity[1] = self.alpha_new[i+3*nBodies]
