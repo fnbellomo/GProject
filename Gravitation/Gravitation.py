@@ -69,11 +69,18 @@ class Gravitation(object):
         self.do_plot = do_plot
 
 
+<<<<<<< HEAD
     def take_steps(self, number_of_steps,plot):
+=======
+    def take_steps(self, number_of_steps,plot,plot_every_n):
+>>>>>>> e0f6f66dfd712274cd35b2985b3cd86d3ce09e85
         """ Takes steps for all bodies """
+#	out=open('out.dat','w')
         for i in range(number_of_steps):
             print('\nstep =',i)
+#            print('\nstep =',i,file=out)
             self.move()
+<<<<<<< HEAD
 	    if self.do_plot == True : self.print_status(plot)
             self.nStep+=1
 
@@ -87,11 +94,22 @@ class Gravitation(object):
             self.nStep+=1
        
         print("\nRun for ", len(self.bodies)," bodies during ", number_of_steps ," time steps\n")
+=======
+	    if self.do_plot == True and i%plot_every_n==0 : self.print_status(plot,i)
+
+#	    for bi in range(len(self.bodies)):
+#		for bj in range(bi+1,len(self.bodies)):
+#			Bi=self.bodies[bi]
+#			Bj=self.bodies[bj]
+#	  	        print('dist(',Bi.obj_id,',',Bj.obj_id,')=\t',Bi.gfactor(Bj),sep='')
+#	  	        print('dist(',Bi.obj_id,',',Bj.obj_id,')=\t',Bi.gfactor(Bj),sep='',file=out)
+#	out.close()
+>>>>>>> e0f6f66dfd712274cd35b2985b3cd86d3ce09e85
 
 
-    def print_status(self,plot):
+    def print_status(self,plot,step_num):
         """ Print the position for all bodies """
-        plot.update()
+        plot.update(step_num)
 	
 
 

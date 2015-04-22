@@ -43,8 +43,10 @@ def main():
 			grav.add_body(obj_id, obj_mass, obj_position, obj_velocity)
 	        elif selected_option == 2:
 			number_of_steps	= (input('number_of_steps:	'))
+			if grav.do_plot == True :
+				plot_every_n = (input('plot each n steps?\n'))
 #			grav.print_status(True)
-			grav.take_steps(number_of_steps,plot)
+			grav.take_steps(number_of_steps,plot,plot_every_n)
 	        elif selected_option == 0:
 			exit(0)
 
