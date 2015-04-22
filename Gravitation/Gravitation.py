@@ -19,7 +19,7 @@ class Gravitation(object):
     """
     This class is the main Gravitaion wrapper
     """
-    def __init__(self,scale_mass=best_mass,scale_distance=best_distance,scale_time=best_time):
+    def __init__(self,scale_mass=best_mass,scale_distance=best_distance,scale_time=best_time,stepSize=1):
         """ Compose a list and a dict with all bodies 
 		.bodies  corresponds to a list with the bodies, i. e. [Body1,Body2,...]		=> GRAV.bodies[1]   = Body1 
 		.lookup  corresponds to a dict with the bodies, i. e. dict([id1,Body1],...)	=> GRAV.lookup[id1] = Body1
@@ -30,39 +30,48 @@ class Gravitation(object):
         self.convert_r	= scale_distance/ best_distance
         self.convert_t	= scale_time	/ best_time	
         self.convert_v	= self.convert_r/ self.convert_t	
-        self.step_size	= 1
+        self.step_size	= stepSize
+#        self.M = np.zeros(1)
 
 
     def add_body(self, obj_id, obj_mass, obj_position, obj_velocity):
         """ Add a body to the list with all bodies """
-	# All dimensions are scaled
-	mass		= float(obj_mass)*self.convert_m
-	position	= [pos*self.convert_r for pos in obj_position]	
-	velocity	= [vel*self.convert_v for vel in obj_velocity]	
-	new_Body	= Body(obj_id,mass,position,velocity)
+        # All dimensions are scaled
+        mass		= float(obj_mass)*self.convert_m
+        position	= [pos*self.convert_r for pos in obj_position]	
+        velocity	= [vel*self.convert_v for vel in obj_velocity]	
+        new_Body	= Body(obj_id,mass,position,velocity)
 
-	self.bodies.append( new_Body )
-	self.lookup[obj_id] = new_Body
-	print('*** Body = ',obj_id, obj_mass, obj_position, obj_velocity,' added ***',sep='\t')
+        self.bodies.append( new_Body )
+        self.lookup[obj_id] = new_Body
+        print('*** Body = ',obj_id, obj_mass, obj_position, obj_velocity,' added ***',sep='\t')
 
 
     def import_bodies(self, filename):
         """ Reads bodies from a file """
-	file_in	= open(filename,'r')
-	lines	= file_in.readlines ()
-	file_in.close ()
-	for i in range(1,len(lines)):
-		if lines[i] != "\n" :
-			aux = lines[i].split ()
-			self.add_body(aux[0],aux[1],float_list(aux[2:4]),float_list(aux[4:6]))
+        file_in	= open(filename,'r')
+        lines	= file_in.readlines ()
+        file_in.close ()
+        for i in range(1,len(lines)):
+            if lines[i] != "\n" :
+                aux = lines[i].split ()
+                self.add_body(aux[0],aux[1],float_list(aux[2:4]),float_list(aux[4:6]))
+			
+        # Creation of force matrix
+        nBodies = len(self.bodies)
+        FMat = np.zeros(16*nBodies*nBodies)
+        self.M = FMat.reshape(4*nBodies,4*nBodies)
+        self.alpha     = np.zeros(4*nBodies)
+        self.alpha_new = np.zeros(4*nBodies)
+        
 
 
     def take_steps(self, number_of_steps,plot):
         """ Takes steps for all bodies """
-	for i in range(number_of_steps):
-		print('\nstep =',i)
-		self.moveRK4()
-		self.print_status(plot)
+        for i in range(number_of_steps):
+            print('\nstep =',i)
+            self.moveRK4()
+            self.print_status(plot)
 
 
 
@@ -79,12 +88,7 @@ class Gravitation(object):
         # This function integrates cinematic equations for all bodies in the list called "bodies"
         #
         
-        # Create the matrix from discretized equations.
-        # It is created to relate all coordinates and positions, so its size is 4N x 4N
         nBodies = len(self.bodies)
-        Aux = np.zeros(16*nBodies*nBodies)
-        M = Aux.reshape(4*nBodies,4*nBodies)
-        
         deltaT = self.step_size
         # Matriz M can be split into 4 subblocks: top-left (tl), top-right (tr), bottom-left (bl), bottom-right (br)
         # tl and br anly contains zeros
@@ -93,65 +97,62 @@ class Gravitation(object):
         
         # Setting tr
         for i in range(2*nBodies):
-            M[i][i+2*nBodies] = 1
+            self.M[i][i+2*nBodies] = 1
 
         
         # Setting bl
         for i in range(nBodies):
             for j in range(nBodies):
                 if i != j:
-                    M[i+2*nBodies][j]   = self.bodies[i].gfactor(self.bodies[j])
-                    M[i+3*nBodies][j+nBodies] = M[i+2*nBodies][j]
+                    self.M[i+2*nBodies][j]   = self.bodies[i].gfactor(self.bodies[j])
+                    self.M[i+3*nBodies][j+nBodies] = self.M[i+2*nBodies][j]
                 else:
                     gsum = 0
                     for k in range(nBodies):
                         gsum += self.bodies[i].gfactor(self.bodies[k])
                     
-                    M[i+2*nBodies][j]   = -gsum
-                    M[i+3*nBodies][j+nBodies] = M[i+2*nBodies][j]
+                    self.M[i+2*nBodies][j]   = -gsum
+                    self.M[i+3*nBodies][j+nBodies] = self.M[i+2*nBodies][j]
                     
         
         # Setting the initial state for vector alpha (position and velocity)
-        alpha     = np.zeros(4*nBodies)
-        alpha_new = np.zeros(4*nBodies)
-
         for i in range(nBodies):    
-           alpha[i]           = self.bodies[i].obj_position[0]    # X coordinate
-           alpha[i+nBodies]   = self.bodies[i].obj_position[1]    # Y coordinate
-           alpha[i+2*nBodies] = self.bodies[i].obj_velocity[0]    # Vx
-           alpha[i+3*nBodies] = self.bodies[i].obj_velocity[1]    # Vy
+           self.alpha[i]           = self.bodies[i].obj_position[0]    # X coordinate
+           self.alpha[i+nBodies]   = self.bodies[i].obj_position[1]    # Y coordinate
+           self.alpha[i+2*nBodies] = self.bodies[i].obj_velocity[0]    # Vx
+           self.alpha[i+3*nBodies] = self.bodies[i].obj_velocity[1]    # Vy
          
         # Vector definition for RK calculation
-        K1 = deltaT * np.dot(M, alpha)
-        K2 = deltaT * np.dot(M, np.add(alpha,0.5*K1))
-        K3 = deltaT * np.dot(M, np.add(alpha,0.5*K2))
-        K4 = deltaT * np.dot(M, np.add(alpha,K3))
+        K1 = deltaT * np.dot(self.M, self.alpha)
+        K2 = deltaT * np.dot(self.M, np.add(self.alpha,0.5*K1))
+        K3 = deltaT * np.dot(self.M, np.add(self.alpha,0.5*K2))
+        K4 = deltaT * np.dot(self.M, np.add(self.alpha,K3))
          
         # Advance one timestep
-        alpha_new = np.add(alpha,(1./6.)*K1)
-        alpha_new = np.add(alpha_new,(1./3.)*K2)
-        alpha_new = np.add(alpha_new,(1./3.)*K3)
-        alpha_new = np.add(alpha_new,(1./6.)*K4)
+        self.alpha_new = np.add(self.alpha,(1./6.)*K1)
+        self.alpha_new = np.add(self.alpha_new,(1./3.)*K2)
+        self.alpha_new = np.add(self.alpha_new,(1./3.)*K3)
+        self.alpha_new = np.add(self.alpha_new,(1./6.)*K4)
 
 #        # Euler explicito
 #        K1 = deltaT * np.dot(M, alpha)
 #        alpha_new = np.add(alpha,K1)
 
         # Update bodies positions and velocities
-        self.update(alpha_new)
+        self.update()
 
 
 
 
 
 
-    def update(self,alpha_new):
+    def update(self):
         """update position and velocity"""
         
         nBodies = len(self.bodies)
         
         for i in range(nBodies):
-            self.bodies[i].obj_position[0] = alpha_new[i]
-            self.bodies[i].obj_position[1] = alpha_new[i+nBodies] 
-            self.bodies[i].obj_velocity[0] = alpha_new[i+2*nBodies] 
-            self.bodies[i].obj_velocity[1] = alpha_new[i+3*nBodies]	
+            self.bodies[i].obj_position[0] = self.alpha_new[i]
+            self.bodies[i].obj_position[1] = self.alpha_new[i+nBodies] 
+            self.bodies[i].obj_velocity[0] = self.alpha_new[i+2*nBodies] 
+            self.bodies[i].obj_velocity[1] = self.alpha_new[i+3*nBodies]	
