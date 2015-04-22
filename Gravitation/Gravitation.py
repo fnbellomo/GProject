@@ -63,18 +63,18 @@ class Gravitation(object):
         self.alpha_new = np.zeros(4*nBodies)
         
         
-    def setUpInt(self,method,timeStep):
+    def setUpInt(self,method,timeStep,do_plot):
         self.method = method
         self.step_size = float(timeStep)
+        self.do_plot = do_plot
 
 
-    def take_steps(self, number_of_steps,plot,do_plot=False):
+    def take_steps(self, number_of_steps,plot,):
         """ Takes steps for all bodies """
-	if do_plot==True : action = self.print_status(plot)
         for i in range(number_of_steps):
             print('\nstep =',i)
             self.move()
-	    if do_plot == True : self.print_status(plot)
+	    if self.do_plot == True : self.print_status(plot)
 
 
 

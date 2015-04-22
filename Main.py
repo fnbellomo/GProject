@@ -17,13 +17,14 @@ parser = argparse.ArgumentParser(description='n-body gravitation')
 parser.add_argument('--method', dest='method',default="runge-kutta4",help='integration method. runge-kutta4 or euler')
 parser.add_argument('--tstep', dest='tstep',default=1, help='time step')
 parser.add_argument('--file', dest='filename',default="bodies.dat", help='body parameters filename')
+parser.add_argument('--plot', dest='do_plot',action='store_true',default=False, help='plot the results in real time')
 args = parser.parse_args()
 
 
 def main():
 	grav	= Gravitation()
 	grav.import_bodies(args.filename)
-	grav.setUpInt(args.method, args.tstep)
+	grav.setUpInt(args.method, args.tstep, args.do_plot)
 	plot = make_plot(grav)
 
 	while True:
