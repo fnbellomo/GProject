@@ -17,6 +17,7 @@ import matplotlib.cm as cmx
 
 #To check if exist a dir
 import os
+import sys
 import shutil
 
 class make_plot(object):
@@ -139,7 +140,7 @@ class make_plot(object):
         """
         Method to save all plots to later make a animations
         """
-	print('Saving plots')
+	print('** Saving plots **')
         plt.ioff()
 	plt.clf()
         self.fig, self.axes = plt.subplots(figsize=(12,12))
@@ -161,4 +162,6 @@ class make_plot(object):
 	for i in range(number_of_steps):
 	    if i%plot_every_n == 0:
 		self.update(i,True)
-	print('Plots saved')
+	print('** Converting plots **')
+	os.system('mencoder mf:Gravitation/Animation/Img/*.jpg -mf w=800:h=600:fps=25:type=png -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o output.avi')
+	print('** done **')
