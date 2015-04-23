@@ -46,6 +46,20 @@ class make_plot(object):
         self.number_body = len(self.grav.bodies)
         self.bodies_range = range(self.number_body)
 
+        #Check if are some img in the path.
+        #If exist, delete all
+        self.img_path = './Gravitation/Animation/Img/'
+        if os.path.isdir(self.img_path):
+            shutil.rmtree(self.img_path)
+            os.mkdir(self.img_path)
+        else:
+            os.mkdir(self.img_path)
+
+        #img_num va a ser un contador que va a aumentar, con el cual vamos a guardar
+        #cada imagen que generamos para luego hacer una animacion.
+        self.img_num = 1
+
+
         self.mass = [grav.bodies[i].obj_mass for i in range(len(grav.bodies))]
         self.mass_max = max(self.mass)
         self.rad  = [sqrt(pow(grav.bodies[i].obj_position[0],2)+pow(grav.bodies[i].obj_position[1],2)) for i in range(len(grav.bodies))]
@@ -67,7 +81,7 @@ class make_plot(object):
             plt.ion()
 
 	    self.base()
-	    self.update(0)
+	    #self.update(0)
 	        
     def base(self,save=False):
             #Set x, y label and title
@@ -89,24 +103,34 @@ class make_plot(object):
 		name = self.grav.bodies[i].obj_id
 	        x = self.grav.bodies[i].obj_position[0]
 	        y = self.grav.bodies[i].obj_position[1]
+
 	        colorVal = self.scalarMap.to_rgba(i)
 	        circles.append( self.axes.add_patch(plt.Circle((x,y), radius=self.circle_radio[i], color=colorVal,label=name)) )
+
 	    self.axes.axis('equal')
 	    self.axes.margins(0)
 	    plt.legend()
             plt.grid(True)
-	    if save == False:
-	        plt.draw()
+            plt.draw()
 	    for obj in circles:
 		obj.remove()
+
+            #save the plot
+            self.save_img()
+
+            self.x_multi = [[] for i in range(self.number_body)]
+            self.y_multi = [[] for i in range(self.number_body)]
+
     
-    def update(self,step_num,save=False):
+    def update(self,step_num,positions, save=False):
         """
         Update the new points in the plots
 
         parameters
         ----------
         step_num : Number of step
+
+        positions : Array with the positions to update
         """
 
         #x and y are position vectors for each bodys
@@ -114,14 +138,64 @@ class make_plot(object):
         plot_line = []
 
         for i in self.bodies_range:
-            x  = self.grav.bodies[i].obj_path[0][step_num]
-            y  = self.grav.bodies[i].obj_path[1][step_num]
-            xp = self.grav.bodies[i].obj_path[0][0:step_num]
-            yp = self.grav.bodies[i].obj_path[1][0:step_num]
+            x_a = positions[0][i]
+            y_a = positions[1][i]
+            x = x_a[-1]
+            y = y_a[-1]
 
+            #Select the color
             colorVal = self.scalarMap.to_rgba(i)
-            plot_circ.append( self.axes.add_patch(plt.Circle((x,y), radius=self.circle_radio[i], color=colorVal)) )
-            plot_line.append( self.axes.plot(xp, yp, '--', color=colorVal))
+            
+            plot_circ.append( self.axes.add_patch(plt.Circle((x, y), radius=self.circle_radio[i], color=colorVal)) )
+            plot_line.append( self.axes.plot(positions[0][i], positions[1][i], '--', color=colorVal))
+
+        time = step_num*self.grav.step_size
+        txt = plt.text(.5,.975,'time='+str(time)+'years',horizontalalignment='center',verticalalignment='center',\
+                        transform = self.axes.transAxes,bbox=dict(facecolor='1'))
+        plt.draw()
+
+        for obj in plot_circ:
+            obj.remove()
+        for obj in plot_line:
+            obj[0].remove()
+
+        txt.remove()
+
+        #save the plot
+        self.save_img()
+
+    def update_multiprosessing(self,step_num, positions):
+        """
+        Update the new points in the plots
+
+        parameters
+        ----------
+        step_num : Number of step
+
+        positions : Array with the positions to update
+        """
+        
+        for i in range(self.number_body):
+            self.x_multi[i].append(positions[0][i])
+            self.y_multi[i].append(positions[1][i])
+
+        #print(self.x_multi)
+        #print(self.x_multi)
+        #x and y are position vectors for each bodys
+        plot_circ = []
+        plot_line = []
+
+        for i in self.bodies_range:
+            x_a = self.x_multi[i]
+            y_a = self.y_multi[i]
+            x = x_a[-1]
+            y = y_a[-1]
+
+            #Select the color
+            colorVal = self.scalarMap.to_rgba(i)
+            
+            plot_circ.append( self.axes.add_patch(plt.Circle((x, y), radius=self.circle_radio[i], color=colorVal)) )
+            plot_line.append( self.axes.plot(self.x_multi[i], self.y_multi[i], '--', color=colorVal))
 
         time = step_num*self.grav.step_size
         txt = plt.text(.5,.975,'time='+str(time)+'years',horizontalalignment='center',verticalalignment='center',\

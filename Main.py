@@ -47,17 +47,20 @@ def main():
 			obj_position	= (input('obj_position	(list=[float,float] format):\n'))
 			obj_velocity	= (input('obj_velocity	(list=[float,float] format):\n'))
 			grav.add_body(obj_id, obj_mass, obj_position, obj_velocity)
+
 		elif selected_option == 2:
 			number_of_steps = (input('number_of_steps: '))
 			plot_every_n = 1
 			if grav.do_plot == True :
 				plot_every_n = (input('plot each n steps?\n'))
+
 			grav.take_steps(number_of_steps,plot,plot_every_n)
 			print_in_file = str(raw_input('Save plot (y/n):\n '))
 			if print_in_file == 'y':
 				if grav.do_plot == False :
 					plot_every_n = (input('plot each n steps?\n'))
 				grav.save_plot(number_of_steps,plot,plot_every_n)
+
 		elif selected_option == 0:
 			exit(0)
 
@@ -73,6 +76,7 @@ def main():
 
 		pr.disable()
 		pr.print_stats()
+
 
 if args.use_config == False:	        
 	if __name__ == '__main__':
