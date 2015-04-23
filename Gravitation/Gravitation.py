@@ -1,28 +1,33 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
+
 from __future__ import print_function
+
 from Body import Body
 from Plot import make_plot
 from toy_funcs import *
+
 import numpy as np
 
-def float_list(LIST): return [float(l) for l in LIST]
-best_mass	= 1
-best_distance	= 1
-best_time	= 1
+def float_list(LIST): 
+    return [float(l) for l in LIST]
+
 # distance : 1.5E+11 m (averange distance beetween Earth to sun)
 # mass : 5.9736E+24 kg (Earth mass)
 # time: 3.1104E07: 
 best_mass	= 1.5E+11
 best_distance	= 5.9736E+24 
 best_time	= 3.1104E07
+
 class Gravitation(object):
     """
     This class is the main Gravitaion wrapper
     """
     def __init__(self,scale_mass=best_mass,scale_distance=best_distance,scale_time=best_time):
-        """ Compose a list and a dict with all bodies 
-		.bodies  corresponds to a list with the bodies, i. e. [Body1,Body2,...]		=> GRAV.bodies[1]   = Body1 
-		.lookup  corresponds to a dict with the bodies, i. e. dict([id1,Body1],...)	=> GRAV.lookup[id1] = Body1
+        """ 
+        Compose a list and a dict with all bodies
+
+	    .bodies  corresponds to a list with the bodies, i. e. [Body1,Body2,...]		=> GRAV.bodies[1]   = Body1 
+	    .lookup  corresponds to a dict with the bodies, i. e. dict([id1,Body1],...)	=> GRAV.lookup[id1] = Body1
 	"""
         self.bodies	= []
         self.lookup	= dict([[body.obj_id,body] for body in self.bodies])
@@ -33,7 +38,9 @@ class Gravitation(object):
         self.nStep      = 0
 
     def add_body(self, obj_id, obj_mass, obj_position, obj_velocity):
-        """ Add a body to the list with all bodies """
+        """
+        Add a body to the list with all bodies
+        """
         # All dimensions are scaled
         mass		= float(obj_mass)*self.convert_m
         position	= [pos*self.convert_r for pos in obj_position]	
@@ -46,7 +53,9 @@ class Gravitation(object):
 
 
     def import_bodies(self, filename):
-        """ Reads bodies from a file """
+        """ 
+        Reads bodies from a file
+        """
         file_in	= open(filename,'r')
         lines	= file_in.readlines ()
         file_in.close ()
@@ -69,7 +78,9 @@ class Gravitation(object):
         self.do_plot = do_plot
 
     def take_steps(self, number_of_steps,plot,plot_every_n):
-        """ Takes steps for all bodies """
+        """
+        Takes steps for all bodies
+        """
         for i in range(number_of_steps):
 #            print('\nstep =',i)
             self.move()
@@ -80,14 +91,18 @@ class Gravitation(object):
 
 
     def print_status(self,plot,step_num):
-        """ Print the position for all bodies """
+        """
+        Print the position for all bodies
+        """
         plot.update(step_num)
 
 
-
-
     def move(self):
-        """Integrate the movement of all the bodies listed in bodies[]"""
+        """
+        Integrate the movement of all the bodies listed in bodies[]
+
+        This function integrates cinematic equations for all bodies in the list called "bodies"
+        """
 
         #
         # This function integrates cinematic equations for all bodies in the list called "bodies"
@@ -122,10 +137,10 @@ class Gravitation(object):
         
         # Setting the initial state for vector alpha (position and velocity)
         for i in range(nBodies):    
-           self.alpha[i]           = self.bodies[i].obj_position[0]    # X coordinate
-           self.alpha[i+nBodies]   = self.bodies[i].obj_position[1]    # Y coordinate
-           self.alpha[i+2*nBodies] = self.bodies[i].obj_velocity[0]    # Vx
-           self.alpha[i+3*nBodies] = self.bodies[i].obj_velocity[1]    # Vy
+            self.alpha[i]           = self.bodies[i].obj_position[0]    # X coordinate
+            self.alpha[i+nBodies]   = self.bodies[i].obj_position[1]    # Y coordinate
+            self.alpha[i+2*nBodies] = self.bodies[i].obj_velocity[0]    # Vx
+            self.alpha[i+3*nBodies] = self.bodies[i].obj_velocity[1]    # Vy
         
         
         if self.method == "runge-kutta4":
@@ -160,12 +175,10 @@ class Gravitation(object):
         self.update()
 
 
-
-
-
-
     def update(self):
-        """update position, velocity and the path"""
+        """
+        Update position, velocity and the path
+        """
         
         nBodies = self.nBodies
         
