@@ -19,6 +19,8 @@ import matplotlib.cm as cmx
 import os
 import shutil
 
+from math import sqrt
+
 class make_plot(object):
     """
     Class to make the plots in run time
@@ -45,7 +47,9 @@ class make_plot(object):
 
         self.mass = [grav.bodies[i].obj_mass for i in range(len(grav.bodies))]
         self.mass_max = max(self.mass)
-        self.circle_radio = [ m/self.mass_max for m in self.mass]
+        self.rad  = [sqrt(pow(grav.bodies[i].obj_position[0],2)+pow(grav.bodies[i].obj_position[1],2)) for i in range(len(grav.bodies))]
+        self.rad_max = max(self.rad)
+        self.circle_radio = [ self.rad_max*0.1*m/self.mass_max for m in self.mass]
         
         #Check if are some img in the path.
         #If exist, delete all
@@ -79,7 +83,7 @@ class make_plot(object):
             cNorm  = colors.Normalize(vmin=0, vmax=self.bodies_range[-1])
             self.scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
 	        
-	    #Plot the initial positons and the radios of eacho body in function of this mass
+	    #Plot the initial positons and the radios of each body in function of this mass
 	    circles = []
 	    for i in self.bodies_range:
 		name = self.grav.bodies[i].obj_id
