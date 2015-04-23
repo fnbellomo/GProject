@@ -54,7 +54,8 @@ class make_plot(object):
 	            y = self.grav.bodies[i].obj_position[1]
 	            colorVal = self.scalarMap.to_rgba(i)
 	            #self.axes.plot(x, y, '^', color=colorVal)
-	            circles.append( self.axes.add_patch(plt.Circle((x,y), radius=self.circle_radio[i], color=colorVal,label=name)) )
+#	            circles.append( self.axes.add_patch(plt.Circle((x,y), radius=self.circle_radio[i], color=colorVal,label=name)) )
+	            circles.append( self.axes.add_patch(plt.Circle((x,y), radius=0.05, color=colorVal,label=name)) )
 	        self.axes.axis('equal')
 	        self.axes.margins(0)
 		plt.legend()
@@ -72,7 +73,8 @@ class make_plot(object):
             yp = self.grav.bodies[i].obj_path[1]
             colorVal = self.scalarMap.to_rgba(i)
 #            plot_obj.append( self.axes.plot(x, y, 'o', color=colorVal)	)
-            plot_circ.append( self.axes.add_patch(plt.Circle((x,y), radius=self.circle_radio[i], color=colorVal)) )
+#            plot_circ.append( self.axes.add_patch(plt.Circle((x,y), radius=self.circle_radio[i], color=colorVal)) )
+            plot_circ.append( self.axes.add_patch(plt.Circle((x,y), radius=0.05, color=colorVal)) )
             plot_line.append( self.axes.plot(xp, yp, '--', color=colorVal))
 	time = step_num*self.grav.step_size
 	txt = plt.text(.5,.975,'time='+str(time)+'years',horizontalalignment='center',verticalalignment='center',transform = self.axes.transAxes,bbox=dict(facecolor='1'))
