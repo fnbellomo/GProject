@@ -49,8 +49,9 @@ def main():
 			number_of_steps = (input('number_of_steps: '))
 			if grav.do_plot == True :
 				plot_every_n = (input('plot each n steps?\n'))
-				# grav.print_status(True)
-				grav.take_steps(number_of_steps,plot,plot_every_n)
+
+				#grav.take_steps(number_of_steps,plot,plot_every_n)
+				grav.steps_multiprocessing(number_of_steps,plot,plot_every_n)
 			else:
 				grav.take_steps(number_of_steps,plot,1)
 		elif selected_option == 0:
@@ -68,7 +69,6 @@ def main():
 
 		pr.disable()
 		pr.print_stats()
-
 	        
 if __name__ == '__main__':
     main()
