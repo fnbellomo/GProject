@@ -89,7 +89,6 @@ class make_plot(object):
                 circles.append( self.axes.add_patch(plt.Circle((x,y), radius=self.circle_radio[i], color=colorVal,label=name)) )
 
             self.axes.axis('equal')
-            self.axes.margins(0)
             plt.legend()
             plt.grid(True)
             plt.draw()
