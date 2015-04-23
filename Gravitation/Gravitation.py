@@ -87,12 +87,17 @@ class Gravitation(object):
             positions_array = self.position_array()
             
             if self.do_plot == True and i%plot_every_n==0: 
-                plot.update(i, positions_array)
+                plot.update(i)
 
             self.nStep+=1
        
         print("\nRun for ", self.nBodies," bodies during ", number_of_steps ," time steps\n")
 
+    def save_plot(self, number_of_steps,plot,plot_every_n):
+        """
+        Saves plots in a file
+        """
+	plot.save_all_img(number_of_steps,plot_every_n)
 
     def move(self):
         """
