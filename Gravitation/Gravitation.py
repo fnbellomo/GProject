@@ -7,6 +7,7 @@ from Plot import make_plot
 from toy_funcs import *
 
 import numpy as np
+from math import sqrt
 
 #To make the plots with multiprocesing
 from multiprocessing import Process, Array, Value
@@ -78,6 +79,11 @@ class Gravitation(object):
         self.M = FMat.reshape(4*self.nBodies,4*self.nBodies)
         self.alpha     = np.zeros(4*self.nBodies)
         self.alpha_new = np.zeros(4*self.nBodies)
+        self.alpha_new_1 = np.zeros(4*self.nBodies)
+        self.alpha_new_2 = np.zeros(4*self.nBodies)
+
+        # Computing internal energy
+        self.total_energy = self.energy()
         
         
     def setUpInt(self,method,timeStep,do_plot):
@@ -85,7 +91,42 @@ class Gravitation(object):
         self.step_size = float(timeStep)
         self.do_plot = do_plot
 
-    def take_steps(self, number_of_steps, plot, plot_every_n):
+
+    def energy(self):
+        kinetic = 0
+        for body in self.bodies:
+            k = 0.5 * body.obj_mass * sqrt(pow(body.obj_velocity[0],2) + pow(body.obj_velocity[1],2))
+            kinetic += k
+
+        potential = 0
+        for i in range(len(self.bodies)):
+            for j in range(len(self.bodies)):
+                if i != j:
+                    dist = sqrt(pow(self.bodies[i].obj_position[0]-self.bodies[j].obj_position[0],2) + pow(self.bodies[i].obj_position[1]-self.bodies[j].obj_position[1],2))
+                    u = -0.5 * self.bodies[i].obj_mass * self.bodies[j].obj_mass / dist
+                    potential += u
+
+        return kinetic + potential
+
+    def energy_vector(self,alphaVec):
+        nBodies = len(self.bodies)
+        kinetic = 0
+        for i in range(nBodies):
+            k = 0.5 * self.bodies[i].obj_mass * sqrt(pow(alphaVec[i+2*nBodies],2) + pow(alphaVec[i+3*nBodies],2))
+            kinetic += k
+
+        potential = 0
+        for i in range(nBodies):
+            for j in range(nBodies):
+                if i != j:
+                    dist = sqrt(pow(alphaVec[i]-alphaVec[j],2) + pow(alphaVec[i+nBodies]-alphaVec[j+nBodies],2))
+                    u = -0.5 * self.bodies[i].obj_mass * self.bodies[j].obj_mass / dist
+                    potential += u
+
+        return kinetic + potential
+
+
+    def take_steps(self, number_of_steps,plot,plot_every_n):
         """
         Takes steps for all bodies
         """
@@ -101,6 +142,11 @@ class Gravitation(object):
        
         print("\nRun for ", self.nBodies," bodies during ", number_of_steps ," time steps\n")
 
+    def save_plot(self, number_of_steps,plot,plot_every_n):
+        """
+        Saves plots in a file
+        """
+	plot.save_all_img(number_of_steps,plot_every_n)
 
     ###################################################################
     #Testing the plot with multiprocesing
@@ -176,7 +222,6 @@ class Gravitation(object):
         #
         
         nBodies = self.nBodies
-        deltaT = self.step_size
         # Matriz M can be split into 4 subblocks: top-left (tl), top-right (tr), bottom-left (bl), bottom-right (br)
         # tl and br anly contains zeros
         # tr is diagonal (unity)
@@ -210,6 +255,7 @@ class Gravitation(object):
             self.alpha[i+3*nBodies] = self.bodies[i].obj_velocity[1]    # Vy
         
         
+        deltaT = self.step_size
         if self.method == "runge-kutta4":
             # Vector definition for RK calculation
             K1 = deltaT * np.dot(self.M, self.alpha)
@@ -222,24 +268,86 @@ class Gravitation(object):
             self.alpha_new = np.add(self.alpha_new,(1./3.)*K2)
             self.alpha_new = np.add(self.alpha_new,(1./3.)*K3)
             self.alpha_new = np.add(self.alpha_new,(1./6.)*K4)
-        
+
+
+#            print(self.energy())
         else:
             if self.method == "euler":
                 # Euler explicito
                 K1 = deltaT * np.dot(self.M, self.alpha)
                 self.alpha_new = np.add(self.alpha,K1)
 
-            elif self.method == "cn":
-                # Crank-Nicholson
-                I = np.identity(4*nBodies) 
-                K1 =  np.add(I, (-deltaT/2)*self.M)
-                K2 =  np.add(I, (deltaT/2)*self.M)
-                K3 = np.linalg.inv(K1)
-                K4 = np.dot(K3,K2)
-                self.alpha_new = np.dot(K4,self.alpha)
+            else:
+                if self.method == "cn":
+                    # Crank-Nicholson
+                    I = np.identity(4*nBodies) 
+                    K1 =  np.add(I, (-deltaT/2)*self.M)
+                    K2 =  np.add(I, (deltaT/2)*self.M)
+                    K3 = np.linalg.inv(K1)
+                    K4 = np.dot(K3,K2)
+                    self.alpha_new = np.dot(K4,self.alpha)
+
+                else:
+                    if self.method == "adaptive-rk4":
+                      
+                        chosenStep = False
+                        while(chosenStep == False):
+                            ecount = self.energy()
+                        
+                            # Vector definition for RK calculation
+                            K1 = deltaT * np.dot(self.M, self.alpha)
+                            K2 = deltaT * np.dot(self.M, np.add(self.alpha,0.5*K1))
+                            K3 = deltaT * np.dot(self.M, np.add(self.alpha,0.5*K2))
+                            K4 = deltaT * np.dot(self.M, np.add(self.alpha,K3))
+                 
+                            # Advance one timestep
+                            self.alpha_new = np.add(self.alpha,(1./6.)*K1)
+                            self.alpha_new = np.add(self.alpha_new,(1./3.)*K2)
+                            self.alpha_new = np.add(self.alpha_new,(1./3.)*K3)
+                            self.alpha_new = np.add(self.alpha_new,(1./6.)*K4)
+                            self.alpha_new_1 = np.copy(self.alpha_new)
+                            
+                            ecount_end = self.energy_vector(self.alpha_new)
+                            energy_loss = abs((ecount_end - ecount) / self.total_energy)
+#                            print(energy_loss)
+                            if energy_loss > 0.000001:
+                                deltaT = deltaT / 2
+
+                            else:
+                                chosenStep = True
+#                                deltaT = deltaT * 2
+#
+#                                # Vector definition for RK calculation
+#                                K1 = deltaT * np.dot(self.M, self.alpha)
+#                                K2 = deltaT * np.dot(self.M, np.add(self.alpha,0.5*K1))
+#                                K3 = deltaT * np.dot(self.M, np.add(self.alpha,0.5*K2))
+#                                K4 = deltaT * np.dot(self.M, np.add(self.alpha,K3))
+#                 
+#                                # Advance one timestep
+#                                self.alpha_new = np.add(self.alpha,(1./6.)*K1)
+#                                self.alpha_new = np.add(self.alpha_new,(1./3.)*K2)
+#                                self.alpha_new = np.add(self.alpha_new,(1./3.)*K3)
+#                                self.alpha_new = np.add(self.alpha_new,(1./6.)*K4)
+#
+#                                ecount_end = self.energy_vector(self.alpha_new)
+#                                energy_loss = abs((ecount_end - ecount) / self.total_energy)
+#
+#                                if energy_loss > 0.01:
+#                                    chosenStep = True
+#                                    self.alpha_new = np.copy(self.alpha_new_1)
+#                                    self.step_time = deltaT
+#
+#                                else: 
+#                                    deltaT = deltaT * 2
+#
+
 
         # Update bodies positions and velocities
         self.update()
+
+#        print(self.energy())
+#        print(self.energy_vector(self.alpha_new))
+
 
 
     def update(self):

@@ -24,6 +24,8 @@ parser.add_argument('--file', dest='filename',default="bodies.dat", help='body p
 parser.add_argument('--plot', dest='do_plot',action='store_true',default=False, help='plot the results in real time')
 parser.add_argument('--profile', dest='profile',action='store_true',default=False, help='runs without interaction mode - only for profiling')
 parser.add_argument('--nsteps', dest='nsteps',default=0, help='total number of time steps')
+parser.add_argument('--config', dest='use_config',action='store_true',default=False, help='uses a configuration file')
+parser.add_argument('--confile', dest='config_file',default='config.py', help='passes a configuration file')
 args = parser.parse_args()
 
 
@@ -45,15 +47,20 @@ def main():
 			obj_position	= (input('obj_position	(list=[float,float] format):\n'))
 			obj_velocity	= (input('obj_velocity	(list=[float,float] format):\n'))
 			grav.add_body(obj_id, obj_mass, obj_position, obj_velocity)
+
 		elif selected_option == 2:
 			number_of_steps = (input('number_of_steps: '))
+			plot_every_n = 1
 			if grav.do_plot == True :
 				plot_every_n = (input('plot each n steps?\n'))
 
-				#grav.take_steps(number_of_steps,plot,plot_every_n)
-				grav.steps_multiprocessing(number_of_steps,plot,plot_every_n)
-			else:
-				grav.take_steps(number_of_steps,plot,1)
+			grav.take_steps(number_of_steps,plot,plot_every_n)
+			print_in_file = str(raw_input('Save plot (y/n):\n '))
+			if print_in_file == 'y':
+				if grav.do_plot == False :
+					plot_every_n = (input('plot each n steps?\n'))
+				grav.save_plot(number_of_steps,plot,plot_every_n)
+
 		elif selected_option == 0:
 			exit(0)
 
@@ -69,6 +76,18 @@ def main():
 
 		pr.disable()
 		pr.print_stats()
-	        
-if __name__ == '__main__':
-    main()
+
+
+if args.use_config == False:	        
+	if __name__ == '__main__':
+	    main()
+else:
+	from config import *
+	grav	= Gravitation()
+	grav.import_bodies(filename)
+	grav.setUpInt(method, tstep,do_plot)
+	plot = make_plot(grav)
+
+	grav.take_steps(number_of_steps,plot,plot_every_n)
+	if save_plot == True:
+		grav.save_plot(number_of_steps,plot,plot_every_n)

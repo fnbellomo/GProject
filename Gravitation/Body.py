@@ -8,12 +8,19 @@ from numpy import sqrt as np_sqrt
 
 class Body(object):
     """
-    This class represents a Body
+    Base class for space bodies
+
+    Parameters
+    ----------
+    body : spatial object
+
+    This class is responsible for creating objects that would be attracted in the same Gravitational object.
+    The class contains specific information such as position, velocity and mass.
     """
 
     def __init__(self, obj_id, obj_mass, obj_position, obj_velocity):
         """
-        The components of the body are
+        Class startup
         """
 
         self.obj_id      	= obj_id		# id		, can be any format
@@ -32,7 +39,10 @@ class Body(object):
 	
     def gfactor(self, other_body):
         """
-        This function computes the g_ij factor between this object and other_object
+        Computes the g_ij factor between this object and other_body
+
+        g_ij = G * mj / d**3 
+
         """
 	    
         # Gravity constant

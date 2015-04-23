@@ -17,7 +17,10 @@ import matplotlib.cm as cmx
 
 #To check if exist a dir
 import os
+import sys
 import shutil
+
+from math import sqrt
 
 class make_plot(object):
     """
@@ -43,10 +46,6 @@ class make_plot(object):
         self.number_body = len(self.grav.bodies)
         self.bodies_range = range(self.number_body)
 
-        self.mass = [grav.bodies[i].obj_mass for i in range(len(grav.bodies))]
-        self.mass_max = max(self.mass)
-        self.circle_radio = [ m/self.mass_max for m in self.mass]
-        
         #Check if are some img in the path.
         #If exist, delete all
         self.img_path = './Gravitation/Animation/Img/'
@@ -56,28 +55,47 @@ class make_plot(object):
         else:
             os.mkdir(self.img_path)
 
-        #img_num va a ser un contador que va a aumentar, 
-        #con el cual vamos a guardar
+        #img_num va a ser un contador que va a aumentar, con el cual vamos a guardar
         #cada imagen que generamos para luego hacer una animacion.
         self.img_num = 1
+
+
+        self.mass = [grav.bodies[i].obj_mass for i in range(len(grav.bodies))]
+        self.mass_max = max(self.mass)
+        self.rad  = [sqrt(pow(grav.bodies[i].obj_position[0],2)+pow(grav.bodies[i].obj_position[1],2)) for i in range(len(grav.bodies))]
+        self.rad_max = max(self.rad)
+        self.circle_radio = [ self.rad_max*0.1*m/self.mass_max for m in self.mass]
+        
+        #To make that the same body have the same color
+        curves = [np.random.random(20) for i in self.bodies_range]
+        jet = cm = plt.get_cmap('jet') 
+        cNorm  = colors.Normalize(vmin=0, vmax=self.bodies_range[-1])
+        self.scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
+	    
+        #Setup the plot
+        self.fig, self.axes = plt.subplots(figsize=(12,12))
+
 
         if grav.do_plot == True:
             #Turn interactive mode on.
             plt.ion()
+
+	    self.base()
+	    #self.update(0)
 	        
-            #Setup the plot
-            self.fig, self.axes = plt.subplots(figsize=(12,12))
+    def base(self,save=False):
             #Set x, y label and title
             label=r'A.U.($6\times10^{24}$m)'
             self.axes.set_xlabel(label)
             self.axes.set_ylabel(label)
             self.axes.set_title('Solution of %s body problems' %(self.number_body))
 	        
-            #To make that the same body have the same color
-            curves = [np.random.random(20) for i in self.bodies_range]
-            jet = cm = plt.get_cmap('jet') 
-            cNorm  = colors.Normalize(vmin=0, vmax=self.bodies_range[-1])
-            self.scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
+
+#            #To make that the same body have the same color
+#            curves = [np.random.random(20) for i in self.bodies_range]
+#            jet = cm = plt.get_cmap('jet') 
+#            cNorm  = colors.Normalize(vmin=0, vmax=self.bodies_range[-1])
+#            self.scalarMap = cmx.ScalarMappable(norm=cNorm, cmap=jet)
 	        
 	    #Plot the initial positons and the radios of eacho body in function of this mass
 	    circles = []
@@ -85,40 +103,26 @@ class make_plot(object):
 		name = self.grav.bodies[i].obj_id
 	        x = self.grav.bodies[i].obj_position[0]
 	        y = self.grav.bodies[i].obj_position[1]
+
 	        colorVal = self.scalarMap.to_rgba(i)
-	        #self.axes.plot(x, y, '^', color=colorVal)
 	        circles.append( self.axes.add_patch(plt.Circle((x,y), radius=self.circle_radio[i], color=colorVal,label=name)) )
+
 	    self.axes.axis('equal')
 	    self.axes.margins(0)
 	    plt.legend()
-	    plt.draw()
-	    for obj in circles:
-		obj.remove()
-
-	    #Plot the initial positons and the radios of eacho body in function of this mass
-            circles = []
-            for i in self.bodies_range:
-                name = self.grav.bodies[i].obj_id
-                x = self.grav.bodies[i].obj_position[0]
-                y = self.grav.bodies[i].obj_position[1]
-                colorVal = self.scalarMap.to_rgba(i)
-                circles.append( self.axes.add_patch(plt.Circle((x,y), radius=self.circle_radio[i], color=colorVal,label=name)) )
-
-            self.axes.axis('equal')
-            plt.legend()
             plt.grid(True)
             plt.draw()
-
-            for obj in circles:
-                obj.remove()
+	    for obj in circles:
+		obj.remove()
 
             #save the plot
             self.save_img()
 
-        self.x_multi = [[] for i in range(self.number_body)]
-        self.y_multi = [[] for i in range(self.number_body)]
+            self.x_multi = [[] for i in range(self.number_body)]
+            self.y_multi = [[] for i in range(self.number_body)]
+
     
-    def update(self,step_num, positions):
+    def update(self,step_num,positions, save=False):
         """
         Update the new points in the plots
 
@@ -132,8 +136,6 @@ class make_plot(object):
         #x and y are position vectors for each bodys
         plot_circ = []
         plot_line = []
-
-
 
         for i in self.bodies_range:
             x_a = positions[0][i]
@@ -198,26 +200,53 @@ class make_plot(object):
         time = step_num*self.grav.step_size
         txt = plt.text(.5,.975,'time='+str(time)+'years',horizontalalignment='center',verticalalignment='center',\
                         transform = self.axes.transAxes,bbox=dict(facecolor='1'))
-        plt.draw()
+	if save == True:
+		self.save_img()
+	else:
+	        plt.draw()
 
         for obj in plot_circ:
             obj.remove()
         for obj in plot_line:
             obj[0].remove()
-
         txt.remove()
 
-        #save the plot
-        self.save_img()
 
 
     def save_img(self):
         """
-        Method to save the plots to later make a animations
+        Method to save each plot
         """
         img_name = self.img_path+str(self.img_num)+'.png'
         self.fig.savefig(img_name)
         self.img_num += 1
 
-    def close_plot(self):
-        plt.close("all")
+    def save_all_img(self,number_of_steps,plot_every_n):
+        """
+        Method to save all plots to later make a animations
+        """
+	print('** Saving plots **')
+        plt.ioff()
+	plt.clf()
+        self.fig, self.axes = plt.subplots(figsize=(12,12))
+        #Check if are some img in the path.
+        #If exist, delete all
+        self.img_path = './Gravitation/Animation/Img/'
+        if os.path.isdir(self.img_path):
+            shutil.rmtree(self.img_path)
+            os.mkdir(self.img_path)
+        else:
+            os.mkdir(self.img_path)
+
+        #img_num va a ser un contador que va a aumentar, 
+        #con el cual vamos a guardar
+        #cada imagen que generamos para luego hacer una animacion.
+        self.img_num = 1
+	
+	self.base(True)
+	for i in range(number_of_steps):
+	    if i%plot_every_n == 0:
+		self.update(i,True)
+	print('** Converting plots **')
+	os.system('mencoder mf:Gravitation/Animation/Img/*.jpg -mf w=800:h=600:fps=25:type=png -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o output.avi')
+	print('** done **')
