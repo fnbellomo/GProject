@@ -15,6 +15,10 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cmx
 
+#To check if exist a dir
+import os
+import shutil
+
 class make_plot(object):
     """
     Class to make the plots in run time
@@ -38,14 +42,28 @@ class make_plot(object):
         self.grav = grav
         self.number_body = len(self.grav.bodies)
         self.bodies_range = range(self.number_body)
+
         self.mass = [grav.bodies[i].obj_mass for i in range(len(grav.bodies))]
         self.mass_max = max(self.mass)
         self.circle_radio = [ m/self.mass_max for m in self.mass]
         
+        #Check if are some img in the path.
+        #If exist, delete all
+        self.img_path = './Gravitation/Animation/Img/'
+        if os.path.isdir(self.img_path):
+            shutil.rmtree(self.img_path)
+            os.mkdir(self.img_path)
+        else:
+            os.mkdir(self.img_path)
+
+        #img_num va a ser un contador que va a aumentar, 
+        #con el cual vamos a guardar
+        #cada imagen que generamos para luego hacer una animacion.
+        self.img_num = 1
+
         if grav.do_plot == True:
             #Turn interactive mode on.
             plt.ion()
-            plt.show()
 	        
             #Setup the plot
             self.fig, self.axes = plt.subplots(figsize=(12,12))
@@ -69,13 +87,18 @@ class make_plot(object):
                 y = self.grav.bodies[i].obj_position[1]
                 colorVal = self.scalarMap.to_rgba(i)
                 circles.append( self.axes.add_patch(plt.Circle((x,y), radius=self.circle_radio[i], color=colorVal,label=name)) )
+
             self.axes.axis('equal')
             self.axes.margins(0)
             plt.legend()
             plt.grid(True)
             plt.draw()
+
             for obj in circles:
                 obj.remove()
+
+            #save the plot
+            self.save_img()
     
     def update(self,step_num):
         """
@@ -111,3 +134,15 @@ class make_plot(object):
             obj[0].remove()
 
         txt.remove()
+
+        #save the plot
+        self.save_img()
+
+
+    def save_img(self):
+        """
+        Method to save the plots to later make a animations
+        """
+        img_name = self.img_path+str(self.img_num)+'.png'
+        self.fig.savefig(img_name)
+        self.img_num += 1
