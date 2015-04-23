@@ -8,6 +8,14 @@ from toy_funcs import *
 
 import numpy as np
 
+#To make the plots with multiprocesing
+from multiprocessing import Process, Array, Value
+import ctypes
+
+import os
+import time
+
+
 def float_list(LIST): 
     return [float(l) for l in LIST]
 
@@ -77,21 +85,83 @@ class Gravitation(object):
         self.step_size = float(timeStep)
         self.do_plot = do_plot
 
-    def take_steps(self, number_of_steps,plot,plot_every_n):
+    def take_steps(self, number_of_steps, plot, plot_every_n):
         """
         Takes steps for all bodies
         """
         for i in range(number_of_steps):
             self.move()
             
-            positions_array = self.position_array()
+            positions = self.position_array()
             
             if self.do_plot == True and i%plot_every_n==0: 
-                plot.update(i, positions_array)
+                plot.update(i, positions)
 
             self.nStep+=1
        
         print("\nRun for ", self.nBodies," bodies during ", number_of_steps ," time steps\n")
+
+
+    ###################################################################
+    #Testing the plot with multiprocesing
+    ###################################################################
+
+    def rk_fun_task(self, number_of_steps, plot_every_n, shared_array, end_plot, counter):
+        print('RK: PID', os.getpid())
+        
+        for j in range(0, number_of_steps, plot_every_n):
+
+            for cont in range(plot_every_n):
+                self.move()
+
+            number_body = len(self.bodies)
+            bodies_range = range(number_body)
+            
+            for i in bodies_range:
+                shared_array[0][i] = self.bodies[i].obj_position[0]
+                shared_array[1][i] = self.bodies[i].obj_position[1]
+
+            counter.value += 1
+            #print('RK: PID', os.getpid())
+            time.sleep(0.5)
+        
+        end_plot.value += 1
+
+    def plot_fun_task(self, old_counter, shared_array, end_plot, counter, plot):
+        print('PLOT: PID', os.getpid())
+        while end_plot.value == 1:
+            """
+            if counter.value == old_counter:
+                print('PLOT: PID', os.getpid())
+                plot.update_multiprosessing(counter.value, shared_array)
+                old_counter += 1
+            """
+            plot.update_multiprosessing(counter.value, shared_array)
+   
+
+    def steps_multiprocessing(self, number_of_steps, plot, plot_every_n):
+        """ 
+        Takes steps for all bodies and plot using multiprocesing
+        """
+        
+        shared_array_base = Array(ctypes.c_double, len(self.bodies)*2)
+        shared_array = np.ctypeslib.as_array(shared_array_base.get_obj())
+        shared_array = shared_array.reshape(2, len(self.bodies))
+
+        counter = Value(ctypes.c_int64, 0)
+        end_plot = Value(ctypes.c_int8, 1)
+
+        old_counter = 1
+        rk_fun = Process(target = self.rk_fun_task, args=(number_of_steps, plot_every_n, shared_array, end_plot, counter))
+        plot_fun = Process(target = self.plot_fun_task, args=(old_counter, shared_array, end_plot, counter, plot))
+
+        rk_fun.start()
+        plot_fun.start()
+
+        rk_fun.join()
+        plot_fun.join()
+
+    ##################################################################
 
 
     def move(self):
@@ -193,14 +263,11 @@ class Gravitation(object):
 
         Este array se lo paso a el metodo plot para actualizar los puntos
         """
-        x = []
-        y = []
         xp = []
         yp = []
+
         for body in self.bodies:
-            x.append(body.obj_position[0])
-            y.append(body.obj_position[1])
             xp.append(body.obj_path[0])
             yp.append(body.obj_path[1])
 
-        return([x, y, xp, yp])
+        return [xp, yp]
