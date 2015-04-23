@@ -122,6 +122,8 @@ class make_plot(object):
         parameters
         ----------
         step_num : Number of step
+
+        positions : Array with the positions to update
         """
 
         #x and y are position vectors for each bodys
