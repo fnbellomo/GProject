@@ -49,3 +49,19 @@ class Body(object):
 	        
         else:
             return 0
+
+    def position_array(self):
+        """
+        Retorna 1 lista con 4 arrays. Dos de las posiciones en x e y de todos los cuerpos. Los otros dos son los path en x e y de cada cuerpo.
+        """
+        x = []
+        y = []
+        xp = []
+        yp = []
+        for body in self.bodies:
+            x.append(self.obj_position[0])
+            y.append(self.obj_position[1])
+            xp.append(self.obj_path[0])
+            yp.append(self.obj_path[1])
+
+        return([x, y, xp, yp])

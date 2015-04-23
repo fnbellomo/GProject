@@ -65,11 +65,11 @@ class Gravitation(object):
                 self.add_body(aux[0],aux[1],float_list(aux[2:4]),float_list(aux[4:6]))
 			
         # Creation of force matrix
-        nBodies = len(self.bodies)
-        FMat = np.zeros(16*nBodies*nBodies)
-        self.M = FMat.reshape(4*nBodies,4*nBodies)
-        self.alpha     = np.zeros(4*nBodies)
-        self.alpha_new = np.zeros(4*nBodies)
+        self.nBodies = len(self.bodies)
+        FMat = np.zeros(16*self.nBodies*self.nBodies)
+        self.M = FMat.reshape(4*self.nBodies,4*self.nBodies)
+        self.alpha     = np.zeros(4*self.nBodies)
+        self.alpha_new = np.zeros(4*self.nBodies)
         
         
     def setUpInt(self,method,timeStep,do_plot):
@@ -82,8 +82,12 @@ class Gravitation(object):
         Takes steps for all bodies
         """
         for i in range(number_of_steps):
+<<<<<<< HEAD
             print('\nstep =',i)
 
+=======
+#            print('\nstep =',i)
+>>>>>>> 611ae405c832d2992f19f927af64ace2de5fdaf8
             self.move()
             
             positions_array = self.position_array()
@@ -93,7 +97,7 @@ class Gravitation(object):
 
             self.nStep+=1
        
-        print("\nRun for ", len(self.bodies)," bodies during ", number_of_steps ," time steps\n")
+        print("\nRun for ", self.nBodies," bodies during ", number_of_steps ," time steps\n")
 
 
     def move(self):
@@ -103,7 +107,11 @@ class Gravitation(object):
         This function integrates cinematic equations for all bodies in the list called "bodies"
         """
 
-        nBodies = len(self.bodies)
+        #
+        # This function integrates cinematic equations for all bodies in the list called "bodies"
+        #
+        
+        nBodies = self.nBodies
         deltaT = self.step_size
         # Matriz M can be split into 4 subblocks: top-left (tl), top-right (tr), bottom-left (bl), bottom-right (br)
         # tl and br anly contains zeros
@@ -151,10 +159,20 @@ class Gravitation(object):
             self.alpha_new = np.add(self.alpha_new,(1./3.)*K3)
             self.alpha_new = np.add(self.alpha_new,(1./6.)*K4)
         
-        elif self.method == "euler":
-            # Euler explicito
-            K1 = deltaT * np.dot(M, alpha)
-            alpha_new = np.add(alpha,K1)
+        else:
+            if self.method == "euler":
+                # Euler explicito
+                K1 = deltaT * np.dot(self.M, self.alpha)
+                self.alpha_new = np.add(self.alpha,K1)
+
+            elif self.method == "cn":
+                # Crank-Nicholson
+                I = np.identity(4*nBodies) 
+                K1 =  np.add(I, (-deltaT/2)*self.M)
+                K2 =  np.add(I, (deltaT/2)*self.M)
+                K3 = np.linalg.inv(K1)
+                K4 = np.dot(K3,K2)
+                self.alpha_new = np.dot(K4,self.alpha)
 
         # Update bodies positions and velocities
         self.update()
@@ -165,7 +183,7 @@ class Gravitation(object):
         Update position, velocity and the path
         """
         
-        nBodies = len(self.bodies)
+        nBodies = self.nBodies
         
         for i in range(nBodies):
             self.bodies[i].obj_position[0] = self.alpha_new[i]
