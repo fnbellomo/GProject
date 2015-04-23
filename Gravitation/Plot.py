@@ -99,7 +99,7 @@ class make_plot(object):
             #save the plot
             self.save_img()
     
-    def update(self,step_num):
+    def update(self,step_num, positions):
         """
         Update the new points in the plots
 
@@ -113,14 +113,11 @@ class make_plot(object):
         plot_line = []
 
         for i in self.bodies_range:
-            x  = self.grav.bodies[i].obj_position[0]
-            y  = self.grav.bodies[i].obj_position[1]
-            xp = self.grav.bodies[i].obj_path[0]
-            yp = self.grav.bodies[i].obj_path[1]
-
+            #Select the color
             colorVal = self.scalarMap.to_rgba(i)
-            plot_circ.append( self.axes.add_patch(plt.Circle((x,y), radius=self.circle_radio[i], color=colorVal)) )
-            plot_line.append( self.axes.plot(xp, yp, '--', color=colorVal))
+            
+            plot_circ.append( self.axes.add_patch(plt.Circle((positions[0][i],positions[1][i]), radius=self.circle_radio[i], color=colorVal)) )
+            plot_line.append( self.axes.plot(positions[2][i], positions[3][i], '--', color=colorVal))
 
         time = step_num*self.grav.step_size
         txt = plt.text(.5,.975,'time='+str(time)+'years',horizontalalignment='center',verticalalignment='center',\

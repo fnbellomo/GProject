@@ -83,18 +83,17 @@ class Gravitation(object):
         """
         for i in range(number_of_steps):
             print('\nstep =',i)
+
             self.move()
-            if self.do_plot == True and i%plot_every_n==0 : self.print_status(plot,i)
+            
+            positions_array = self.position_array()
+            
+            if self.do_plot == True and i%plot_every_n==0: 
+                plot.update(i, positions_array)
+
             self.nStep+=1
        
         print("\nRun for ", len(self.bodies)," bodies during ", number_of_steps ," time steps\n")
-
-
-    def print_status(self,plot,step_num):
-        """
-        Print the position for all bodies
-        """
-        plot.update(step_num)
 
 
     def move(self):
@@ -175,3 +174,21 @@ class Gravitation(object):
             self.bodies[i].obj_velocity[1] = self.alpha_new[i+3*nBodies]
             self.bodies[i].obj_path[0] 	   .append(self.bodies[i].obj_position[0])
             self.bodies[i].obj_path[1] 	   .append(self.bodies[i].obj_position[1])
+
+    def position_array(self):
+        """
+        Retorna 1 lista con 4 arrays. Dos de las posiciones en x e y de todos los cuerpos. Los otros dos son los path en x e y de cada cuerpo.
+
+        Este array se lo paso a el metodo plot para actualizar los puntos
+        """
+        x = []
+        y = []
+        xp = []
+        yp = []
+        for body in self.bodies:
+            x.append(body.obj_position[0])
+            y.append(body.obj_position[1])
+            xp.append(body.obj_path[0])
+            yp.append(body.obj_path[1])
+
+        return([x, y, xp, yp])
