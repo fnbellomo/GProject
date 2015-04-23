@@ -43,7 +43,7 @@ class Body(object):
             # Distance beetween objects
             dx = self.obj_position[0] - other_body.obj_position[0]
             dy = self.obj_position[1] - other_body.obj_position[1]
-            dist = np-sqrt(dx*dx + dy*dy)
+            dist = np_sqrt(dx*dx + dy*dy)
 	       
             return G*other_body.obj_mass/(dist*dist*dist)
 	        
