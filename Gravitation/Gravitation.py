@@ -82,12 +82,6 @@ class Gravitation(object):
         Takes steps for all bodies
         """
         for i in range(number_of_steps):
-<<<<<<< HEAD
-            print('\nstep =',i)
-
-=======
-#            print('\nstep =',i)
->>>>>>> 611ae405c832d2992f19f927af64ace2de5fdaf8
             self.move()
             
             positions_array = self.position_array()

@@ -131,15 +131,9 @@ class make_plot(object):
         for i in self.bodies_range:
             #Select the color
             colorVal = self.scalarMap.to_rgba(i)
-<<<<<<< HEAD
             
             plot_circ.append( self.axes.add_patch(plt.Circle((positions[0][i],positions[1][i]), radius=self.circle_radio[i], color=colorVal)) )
             plot_line.append( self.axes.plot(positions[2][i], positions[3][i], '--', color=colorVal))
-=======
-#            plot_obj.append( self.axes.plot(x, y, 'o', color=colorVal)	)
-            plot_circ.append( self.axes.add_patch(plt.Circle((x,y), radius=self.circle_radio[i], color=colorVal)) )
-            plot_line.append( self.axes.plot(xp, yp, '--', color=colorVal))
->>>>>>> 611ae405c832d2992f19f927af64ace2de5fdaf8
 
         time = step_num*self.grav.step_size
         txt = plt.text(.5,.975,'time='+str(time)+'years',horizontalalignment='center',verticalalignment='center',\
