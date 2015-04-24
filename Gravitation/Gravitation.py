@@ -212,7 +212,7 @@ class Gravitation(object):
         """
         Saves plots in a file.
         """
-        plot.save_all_img(number_of_steps,plot_every_n)
+        plot.save_all_img(number_of_steps,plot_every_n,self.position_array())
 
     ###################################################################
     #Testing the plot with multiprocesing

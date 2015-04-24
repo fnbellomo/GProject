@@ -90,7 +90,7 @@ class make_plot(object):
         self.base()
         #self.update(0)
 	        
-    def base(self):
+    def base(self,save=False):
         """
         Initialize the object by setting the title of the graph, axes, etc
         """
@@ -116,20 +116,18 @@ class make_plot(object):
         plt.legend()
         plt.grid(True)
 
-        if self.do_plot == True:
+        if self.do_plot == True and save==False :
             plt.draw()
 
         for obj in circles:
             obj.remove()
 
-        #save the plot
-        self.save_img()
 
         self.x_multi = [[] for i in range(self.number_body)]
         self.y_multi = [[] for i in range(self.number_body)]
 
     
-    def update(self, step_num, positions):
+    def update(self, step_num, positions,save=False):
         """
         Update the new points in the plots. If grav.do_plot == True, are going to display. Else, only is going to save in the path directory.
 
@@ -162,7 +160,7 @@ class make_plot(object):
         txt = plt.text(.5,.975,'time='+str(time)+'years',horizontalalignment='center',verticalalignment='center',\
                         transform = self.axes.transAxes,bbox=dict(facecolor='1'))
         
-        if self.do_plot == True:
+        if self.do_plot == True and save==False :
             plt.draw()
 
         for obj in plot_circ:
@@ -172,8 +170,6 @@ class make_plot(object):
 
         txt.remove()
 
-        #save the plot
-        self.save_img()
 
     def update_multiprosessing(self,step_num, positions):
         """
@@ -215,8 +211,6 @@ class make_plot(object):
         if self.do_plot == True:
             plt.draw()
 
-        self.save_img()
-
         for obj in plot_circ:
             obj.remove()
         for obj in plot_line:
@@ -234,7 +228,7 @@ class make_plot(object):
         self.fig.savefig(img_name)
         self.img_num += 1
 
-    def save_all_img(self,number_of_steps,plot_every_n):
+    def save_all_img(self,number_of_steps,plot_every_n,positions):
         """
         Method to save all plots to later make a animations
         """
@@ -259,7 +253,7 @@ class make_plot(object):
         self.base(True)
         for i in range(number_of_steps):
             if i%plot_every_n == 0:
-                self.update(i,True)
+                self.update(i,positions,True)
 
         print('** Converting plots **')
         os.system('mencoder mf:Gravitation/Animation/Img/*.jpg -mf w=800:h=600:fps=25:type=png -ovc lavc -lavcopts vcodec=mpeg4:mbd=2:trell -oac copy -o output.avi')
