@@ -1,0 +1,5 @@
+ID	MASS	X	Y	V_X	V_Y
+pedro	1	20	0	0	0.03
+juan	1	-20	0	0	-0.03
+carlos	1	0	20	0	-0.03
+jose	1	0	-20	0	-0.03
