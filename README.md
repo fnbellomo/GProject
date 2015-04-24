@@ -14,8 +14,9 @@ This is the final proyect presented in the *[2015 ICTP-SAIFR School and Workshop
 ##Install:
 
 ###Requiriments:
-*Numpy
-*Matplotlib
+
+* Numpy
+* Matplotlib
 
 Is you don't have this packaged, when you make the install process, this packaged is going to install.
 
@@ -28,5 +29,9 @@ Is you don't have this packaged, when you make the install process, this package
 
 Put link  
 
+##License:
 
-<a rel="license" href="http://creativecommons.org/licenses/by/2.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/2.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution 2.0 Generic License</a>.
+All the code is unther [GPL v2](https://github.com/fnbellomo/GProject/blob/master/LICENSE) license.
+
+The documentations is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution 2.0 Generic License</a>.
+<a rel="license" href="http://creativecommons.org/licenses/by/2.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/2.0/88x31.png" /></a><br />
