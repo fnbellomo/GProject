@@ -8,11 +8,7 @@ from numpy import sqrt as np_sqrt
 
 class Body(object):
     """
-    Base class for space bodies
-
-    Parameters
-    ----------
-    body : spatial object
+    Base class for space bodies.
 
     This class is responsible for creating objects that would be attracted in the same Gravitational object.
     The class contains specific information such as position, velocity and mass.
@@ -20,7 +16,18 @@ class Body(object):
 
     def __init__(self, obj_id, obj_mass, obj_position, obj_velocity):
         """
-        Class startup
+        Start a Body objects.
+
+        Parameters
+        ----------
+        obj_id : str
+                Body name.
+        obj_mass : str
+                Body mass.
+        obj_position : array_like
+                Position in x and y. [x, y]
+        obj_velocity : array_like
+                Velocity in x and y. [V_x, V_y]
         """
 
         self.obj_id      	= obj_id		# id		, can be any format
@@ -32,6 +39,17 @@ class Body(object):
     def step(self, step_func, step_size, bodies_list, dict_bodies):
         """
         Take a step for the position and velocity of the body
+
+        Parameters
+        ----------
+        step_func : 
+                  
+        step_size : float
+                   Size of the time step.
+        bodies_list : list
+                   List of the name all bodies.
+        dict_bodies : dictionary
+                   Property dictionary of all bodies
         """
 
         self.obj_position,self.obj_velocity = step_func(step_size,self.obj_id,bodies_list,dict_bodies)
@@ -40,9 +58,14 @@ class Body(object):
     def gfactor(self, other_body):
         """
         Computes the g_ij factor between this object and other_body
-
         g_ij = G * mj / d**3 
 
+        Were G is the gravitational constant, mj is the mass of the other objects and d is the distans.
+        
+        Parameters
+        ---------_
+        other_body : Object
+                    Another body object.
         """
 	    
         # Gravity constant
@@ -59,19 +82,3 @@ class Body(object):
 	        
         else:
             return 0
-
-    def position_array(self):
-        """
-        Retorna 1 lista con 4 arrays. Dos de las posiciones en x e y de todos los cuerpos. Los otros dos son los path en x e y de cada cuerpo.
-        """
-        x = []
-        y = []
-        xp = []
-        yp = []
-        for body in self.bodies:
-            x.append(self.obj_position[0])
-            y.append(self.obj_position[1])
-            xp.append(self.obj_path[0])
-            yp.append(self.obj_path[1])
-
-        return([x, y, xp, yp])
