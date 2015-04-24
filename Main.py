@@ -54,7 +54,7 @@ def main():
 			
 			plot_every_n = (input('plot each n steps?\n'))
 			
-			if mp == False:
+			if args.mp == False:
 				grav.take_steps(number_of_steps, plot, plot_every_n)
 			else:
 				grav.steps_multiprocessing(number_of_steps,plot,plot_every_n)
