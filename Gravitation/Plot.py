@@ -43,6 +43,7 @@ class make_plot(object):
         """
 
         self.grav = grav
+        self.do_plot = self.grav.do_plot
         self.number_body = len(self.grav.bodies)
         self.bodies_range = range(self.number_body)
 
@@ -74,14 +75,15 @@ class make_plot(object):
 	    
         #Setup the plot
         self.fig, self.axes = plt.subplots(figsize=(12,12))
-
-
-        if grav.do_plot == True:
+        
+        if self.do_plot == True:
             #Turn interactive mode on.
             plt.ion()
+        else:
+            plt.ioff()
 
-	    self.base()
-	    #self.update(0)
+        self.base()
+        #self.update(0)
 	        
     def base(self,save=False):
             #Set x, y label and title
@@ -111,7 +113,10 @@ class make_plot(object):
 	    self.axes.margins(0)
 	    plt.legend()
             plt.grid(True)
-            plt.draw()
+
+            if self.do_plot == True:
+                plt.draw()
+
 	    for obj in circles:
 		obj.remove()
 
@@ -152,7 +157,9 @@ class make_plot(object):
         time = step_num*self.grav.step_size
         txt = plt.text(.5,.975,'time='+str(time)+'years',horizontalalignment='center',verticalalignment='center',\
                         transform = self.axes.transAxes,bbox=dict(facecolor='1'))
-        plt.draw()
+        
+        if self.do_plot == True:
+            plt.draw()
 
         for obj in plot_circ:
             obj.remove()
@@ -200,10 +207,11 @@ class make_plot(object):
         time = step_num*self.grav.step_size
         txt = plt.text(.5,.975,'time='+str(time)+'years',horizontalalignment='center',verticalalignment='center',\
                         transform = self.axes.transAxes,bbox=dict(facecolor='1'))
-	if save == True:
-		self.save_img()
-	else:
-	        plt.draw()
+
+        if self.do_plot == True:
+            plt.draw()
+
+        self.save_img()
 
         for obj in plot_circ:
             obj.remove()
