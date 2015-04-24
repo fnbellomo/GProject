@@ -88,5 +88,3 @@ else:
 	plot = make_plot(grav)
 
 	grav.take_steps(number_of_steps,plot,plot_every_n)
-	if save_plot == True:
-		grav.save_plot(number_of_steps,plot,plot_every_n)
