@@ -251,7 +251,7 @@ class Gravitation(object):
 
             counter.value += 1
             #print('RK: PID', os.getpid())
-            time.sleep(0.5)
+#            time.sleep(0.5)
         
         end_plot.value += 1
 
